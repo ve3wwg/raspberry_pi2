@@ -1,6 +1,10 @@
 /* rpidma.h - For use with ioctl of /dev/rpidma
  * Warren W. Gay VE3WWG
  * Thu Apr 16 21:48:48 2015
+ *
+ * Exploring the Raspberry Pi 2 with C++ (ISBN 978-1-4842-1738-2)
+ * by Warren Gay VE3WWG
+ * LGPL2 V2.1
  */
 
 #ifndef _RPIDMA_H

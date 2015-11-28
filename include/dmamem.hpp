@@ -1,6 +1,10 @@
 //////////////////////////////////////////////////////////////////////
 // dmamem.hpp -- DMA Memory class DmaMem 
 // Date: Sun Apr  5 16:36:53 2015   (C) Warren Gay ve3wwg
+//
+// Exploring the Raspberry Pi 2 with C++ (ISBN 978-1-4842-1738-2)
+// by Warren Gay VE3WWG
+// LGPL2 V2.1
 ///////////////////////////////////////////////////////////////////////
 
 #ifndef DMAMEM_HPP

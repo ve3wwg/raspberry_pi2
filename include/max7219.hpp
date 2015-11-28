@@ -1,6 +1,10 @@
 //////////////////////////////////////////////////////////////////////
 // max7219.hpp -- The MAX7219 Class
 // Date: Mon Mar 16 20:55:11 2015   (C) Warren Gay ve3wwg
+//
+// Exploring the Raspberry Pi 2 with C++ (ISBN 978-1-4842-1738-2)
+// by Warren Gay VE3WWG
+// LGPL2 V2.1
 ///////////////////////////////////////////////////////////////////////
 
 #ifndef MAX7219_HPP

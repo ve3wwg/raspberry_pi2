@@ -1,6 +1,10 @@
 //////////////////////////////////////////////////////////////////////
 // gp.cpp -- The gp gpio command for the Raspberry Pi
 // Date: Thu Apr 30 18:59:27 2015  (C) Warren W. Gay VE3WWG 
+//
+// Exploring the Raspberry Pi 2 with C++ (ISBN 978-1-4842-1738-2)
+// by Warren Gay VE3WWG
+// LGPL2 V2.1
 ///////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>

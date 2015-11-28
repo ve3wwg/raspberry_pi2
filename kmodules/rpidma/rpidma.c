@@ -1,6 +1,10 @@
 /* Kernel Module rpidma.c
  * Mon Apr 13 21:44:28 2015
  * Warren W. Gay VE3WWG
+ *
+ * Exploring the Raspberry Pi 2 with C++ (ISBN 978-1-4842-1738-2)
+ * by Warren Gay VE3WWG
+ * LGPL2 V2.1
  */
 #include <linux/module.h>
 #include <linux/kernel.h>
@@ -280,4 +284,3 @@ module_exit(rpidma_end);
 MODULE_LICENSE("GPL");
 
 /* End rpidma.c */
-

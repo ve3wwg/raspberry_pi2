@@ -1,6 +1,10 @@
 //////////////////////////////////////////////////////////////////////
 // piutils.cpp -- Raspberry Pi Utilities
 // Date: Sat Mar 14 23:19:38 2015  (C) Warren W. Gay VE3WWG 
+//
+// Exploring the Raspberry Pi 2 with C++ (ISBN 978-1-4842-1738-2)
+// by Warren Gay VE3WWG
+// LGPL2 V2.1
 ///////////////////////////////////////////////////////////////////////
 
 #include <stdlib.h>
