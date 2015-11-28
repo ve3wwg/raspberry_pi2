@@ -1,0 +1,21 @@
+######################################################################
+#  librpi2/Makefile.incl
+######################################################################
+
+TOPDIR := $(dir $(CURDIR)/$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST)))
+
+CXX		= $(shell ls /usr/bin/g++-*|tail -1)
+CXXSTD		?= c++11
+
+PREFIX		?= /usr/local
+LINUX		?= /home/pi/linux
+AR		?= ar
+INCL		?= -I. -I$(TOPDIR)/include
+CXXFLAGS	?= -std=$(CXXSTD) -Wall -Wno-deprecated -Wno-narrowing $(INCL)
+OPTZ		?= -g -O0
+LDFLAGS		?= -L$(TOPDIR)/lib -lrpi2 -lrt -lm
+
+.cpp.o:
+	$(CXX) -c $(CXXFLAGS) $(OPTZ) $< -o $*.o
+
+# End Makefile

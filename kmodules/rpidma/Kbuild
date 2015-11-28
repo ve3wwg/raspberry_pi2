@@ -1,0 +1,6 @@
+EXTRA_CFLAGS := -I$(src)/../../include
+
+obj-m  := rpidma.o
+
+# rpidma-y := rpidma.o
+

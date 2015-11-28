@@ -1,0 +1,13 @@
+//////////////////////////////////////////////////////////////////////
+// common.hpp -- Common Area Declarations and Functions
+// Date: Sat Jul  4 21:38:23 2015   (C) Warren Gay ve3wwg
+///////////////////////////////////////////////////////////////////////
+
+#ifndef COMMON_HPP
+#define COMMON_HPP
+
+void shutdown_all();
+
+#endif // COMMON_HPP
+
+// End common.hpp
