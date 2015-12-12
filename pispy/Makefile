@@ -10,7 +10,7 @@ include ../Makefile.incl
 
 all:	pispy
 	
-pispy: pispy.o $(TOPDIR)/librpi2/librpi2.a
+pispy: pispy.o $(TOPDIR)/lib/librpi2.a
 	$(CXX) pispy.o -o pispy $(LDFLAGS)
 	sudo chown root pispy
 	sudo chmod u+s pispy
