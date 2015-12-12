@@ -14,7 +14,7 @@ INCS	= matrix.hpp max7219.hpp piutils.hpp mailbox.hpp gpio.hpp \
           mtop.hpp dmamem.hpp dma.hpp logana.hpp vcdout.hpp
 
 all:	../lib/librpi2.a
-	$(MAKE) -$(MAKEFLAGS) -C ./test
+#	$(MAKE) -$(MAKEFLAGS) -C ./test
 
 ../lib/librpi2.a: $(OBJS)
 	@rm -fr ../lib/librpi2.a
