@@ -23,12 +23,10 @@ all:	../lib/librpi2.a
 
 clean:
 	rm -f *.o core.*
-	$(MAKE) -$(MAKEFLAGS) -C ./test clean
 
 clobber: clean
 	rm -fr ../lib
 	rm -f .errs.t 
-	$(MAKE) -$(MAKEFLAGS) -C ./test clobber
 
 matrix.o: ../include/matrix.hpp ../include/piutils.hpp
 max7219.o: ../include/max7219.hpp ../include/gpio.hpp ../include/piutils.hpp
