@@ -46,8 +46,10 @@ public:
 
     bool alloc_blocks(unsigned blocks);
 
-    bool start(unsigned long src_addr);
+    bool start(unsigned long src_addr); // Start the DMA
+    bool read_1stblock();       // True if the first block has been read
     int is_completed();		// 1==completed, 0==incomplete or < 0 is error
+    void cancel();              // Cancel current DMA transfer (if any)
 
     inline size_t get_blocks() { return dma_blocks.size(); }
 

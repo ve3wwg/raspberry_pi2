@@ -122,6 +122,7 @@ LogicAnalyzer::start(unsigned long src_addr) {
     s_rpidma_ioctl rpidma;    
     int rc;
 
+    assert(dma_blocks.size() >= 1); // Must have storage allocated
     assert(fd >= 0);                // Driver must be open
         
     rpidma.slave_id = 0;
@@ -131,10 +132,42 @@ LogicAnalyzer::start(unsigned long src_addr) {
     rpidma.n_dst = sg_list.size();
     rpidma.pdst_addr = (uint32_t *)sg_list.data();
 
+    uint32_t *uwords = (uint32_t *)dma_blocks[0];       // Point to block of uint32_t words
+    uint32_t ux = rpidma.page_sz / sizeof uwords[0];    // # of uint32_t words per block
+    
+    // Set last 2 words in first block to a pattern that will be overwritten
+    uwords[ux-2] = 0xA5A5A5A5;
+    uwords[ux-1] = ~uwords[ux-2];
+
+    // Light this candle!
     rc = ioctl(fd,RPIDMA_START,&rpidma);
     assert(!rc);
 
     return true;
+}
+
+//////////////////////////////////////////////////////////////////////
+// Cancel current DMA operation (if any)
+//////////////////////////////////////////////////////////////////////
+
+void
+LogicAnalyzer::cancel() {
+    int rc = ioctl(fd,RPIDMA_CANCEL,0);
+    assert(!rc);
+}
+
+//////////////////////////////////////////////////////////////////////
+// Return true when the first block has been read
+//////////////////////////////////////////////////////////////////////
+
+bool
+LogicAnalyzer::read_1stblock() {
+    assert(dma_blocks.size() >= 1);                                 // Must have storage allocated
+    volatile uint32_t *uwords = (volatile uint32_t *)dma_blocks[0]; // Point to block of uint32_t words
+    uint32_t blksiz = pagesize * sizeof(uint32_t);                  // Bytes
+    uint32_t ux = blksiz / sizeof(uint32_t);                        // # of words
+
+    return uwords[ux-2] != 0xA5A5A5A5 || uwords[ux-1] != ~0xA5A5A5A5;
 }
 
 //////////////////////////////////////////////////////////////////////
