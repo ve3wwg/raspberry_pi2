@@ -23,13 +23,7 @@ class LogicAnalyzer {
     uint32_t            pagesize;   // Kernel page size
     uint32_t            sampspblk;  // Samples per block
 
-    struct s_block {
-        void            *data;      // dma mem block
-        DMA::CB         *dma_cb;    // dma ctl block
-        uint32_t        *samples;   // 1st sample
-    };
-
-    std::vector<s_block*> dma_blocks;
+    std::vector<void*> dma_blocks;  // Memory blocks for use with DMA
 
     std::vector<uint32_t>  sg_list;    // Scatter/Gather list
 

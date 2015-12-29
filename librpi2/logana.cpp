@@ -91,9 +91,9 @@ LogicAnalyzer::alloc_blocks(unsigned blocks) {
 
     // Release existing blocks
     for ( auto it = dma_blocks.begin(); it != dma_blocks.end(); ++it ) {
-        s_block *block = *it;
-        dmamem.free(block->data);
-        delete block;
+	void *block = *it;
+
+        dmamem.free(block);
     }
     dma_blocks.clear();
 
@@ -102,17 +102,9 @@ LogicAnalyzer::alloc_blocks(unsigned blocks) {
     // Create the requested blocks
     dma_blocks.reserve(blocks);
     for ( unsigned ux=0; ux < blocks; ++ux ) {
-        s_block *block = new s_block;
-        if ( !block ) {
-            return false;
-	}
-
-        block->data = dmamem.allocate(pagespblk);
-        block->dma_cb = (DMA::CB *)block->data;
-        block->samples = ((uint32_t *)block->data) + 8;
-	block->dma_cb->clear();
+        void *block = dmamem.allocate(pagespblk);
         dma_blocks.push_back(block);
-        sg_list.push_back(dmamem.phys_addr(block->data));
+        sg_list.push_back(dmamem.phys_addr(block));
     }
 
     return true;
@@ -165,7 +157,7 @@ LogicAnalyzer::get_samples(unsigned blockx,size_t *n_samples) {
         return 0;                   // Bad blockx
 
     // Skip over DMA CB:
-    return (uint32_t *)dma_blocks[blockx]->data;
+    return (uint32_t *)dma_blocks[blockx];
 }
 
 // End logana.cpp
