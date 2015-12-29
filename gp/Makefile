@@ -10,7 +10,7 @@ include ../Makefile.incl
 
 all:	gp
 	
-gp: gp.o $(TOPDIR)/librpi2/librpi2.a
+gp: gp.o $(TOPDIR)/lib/librpi2.a
 	$(CXX) gp.o -o gp $(LDFLAGS)
 	sudo chown root gp
 	sudo chmod u+s gp
