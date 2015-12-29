@@ -4,6 +4,8 @@
 
 include ../Makefile.incl
 
+.PHONY: all install clean clobber
+
 all:
 	@if [ ! -d "$(LINUX)" ] ; then \
 		echo "Variable LINUX=$(LINUX), where there is" ; \
@@ -11,8 +13,13 @@ all:
 		echo " " ; \
 	fi
 	@if [ -d "$(LINUX)" ] ; then \
-		$(MAKE) -$(MAKEFLAGS) -C $(LINUX) M=$$PWD/rpidma ; \
-		$(MAKE) -$(MAKEFLAGS) -C ./test ; \
+		if [ $(KVER) -eq 4 ] ; then \
+			echo "Raspbian 4.x module :" ; \
+			$(MAKE) -$(MAKEFLAGS) -C $(LINUX) M=$$PWD/rpidma4x ; \
+		else \
+			echo "You need the Raspbian 3.x module for your kernel. See README.md." ; \
+			exit 1 ; \
+		fi ; \
 	else \
 		echo "Set LINUX= to directory of kernel sources to" ; \
 		echo "build rpidma.ko kernel module, which is " ; \
@@ -21,32 +28,29 @@ all:
 	fi
 
 install:
-	@if [ -f "$(TOPDIR)/kmodules/rpidma/rpidma.ko" ] ; then \
-		sudo $(MAKE) -$(MAKEFLAGS) -C $(LINUX) M=$$PWD/rpidma modules_install ; \
+	@if [ -f "$(TOPDIR)/kmodules/rpidma4x/rpidma4x.ko" ] ; then \
+		sudo $(MAKE) -$(MAKEFLAGS) -C $(LINUX) M=$$PWD/rpidma4x modules_install ; \
 		echo "------------------------------------------------------------" ; \
-		echo "To automatically have rpidma.ko load at boot time, you" ; \
+		echo "To automatically have rpidma4x.ko load at boot time, you" ; \
 		echo "must edit /etc/modules and add the line:" ; \
 		echo " " ; \
-		echo "rpidma" ; \
+		echo "rpidma4x" ; \
 		echo " " ; \
 		echo "To the list (and save the file).  This will have Linux" ; \
 		echo "load it each time the kernel boots. " ; \
 		echo " " ; \
 		echo "Alternatively, you can manually load it as follows:" ; \
 		echo "" ; \
-		echo "  # cd $$(cd $(TOPDIR)/kmodules/rpidma; pwd)" ; \
-		echo "  # sudo insmod ./rpidma.ko" ; \
+		echo "  # cd $$(cd $(TOPDIR)/kmodules/rpidma4x; pwd)" ; \
+		echo "  # sudo insmod ./rpidma4x.ko" ; \
 		echo "------------------------------------------------------------" ; \
 	else \
 		echo "No kernel modules installed." ; \
 	fi
 
 clean:
-	$(MAKE) -$(MAKEFLAGS) -C ./test clean
 
 clobber:
-	$(MAKE) -$(MAKEFLAGS) -C ./rpidma -f Makefile.aux clobber
-	$(MAKE) -$(MAKEFLAGS) -C ./hello -f Makefile.aux clobber
-	$(MAKE) -$(MAKEFLAGS) -C ./test clobber
+	$(MAKE) -$(MAKEFLAGS) -C ./rpidma4x -f Makefile.aux clobber
 
 
