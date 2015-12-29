@@ -73,14 +73,9 @@ Mailbox::create(uint32_t pages) {
     path = "/dev/vcio";     // This changed in Linux 4.x
     this->pages = pages;
 
-    fd = ::open(path,O_RDWR);
-    if ( fd == -1 ) {
-	fd = ::open(path,O_RDWR);
-    }
-
-    if ( fd == -1 ) {
+    fd = ::open(path.c_str(),O_RDWR);
+    if ( fd == -1 )
         return false;
-    }
 
     mem_ref = alloc(pages*page_size,page_size,mem_flag);
     if ( mem_ref == ~0u ) {
@@ -136,8 +131,6 @@ Mailbox::close() {
     if ( fd >= 0 ) {
         rc = ::close(fd);
         fd = -1;
-        if ( createf && strcmp(path.c_str(),"/dev/vcio") != 0 )
-            unlink(path.c_str());   // Don't delete /dev/vcio !!
     }
 
     return !rc;

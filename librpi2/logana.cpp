@@ -36,7 +36,6 @@ LogicAnalyzer::LogicAnalyzer(unsigned arg_ppblk) : pagespblk(arg_ppblk) {
     dalloc.src_addr = 0;
     dalloc.n_dst = 0;
     dalloc.pdst_addr = nullptr;
-    rpidma4x = 1;
 }
 
 LogicAnalyzer::~LogicAnalyzer() {
@@ -53,28 +52,17 @@ LogicAnalyzer::open() {
     if ( fd >= 0 )
         close();
 
-    fd = ::open("/dev/rpidma",O_RDONLY);
+    fd = ::open("/dev/rpidma4x",O_RDONLY);
     if ( fd < 0 ) {
-        // Try the Linux 4.x kmodule
-        fd = ::open("/dev/rpidma4x",O_RDONLY);
-        if ( fd == -1 ) {
-            std::stringstream ss;
-
-            ss << strerror(errno) << ": Opening driver /dev/rpidma";
-            errmsg = ss.str();
-            return false;
-        } else {
-            rpidma4x = true;        // Using Linux 4.x kmodule
-        }
-    } else {
-        rpidma4x = false;           // Using Linux 3.x kmodule
+        ss << strerror(errno) << ": Opening driver /dev/rpidma4x";
+        errmsg = ss.str();
+        return false;
     }
 
     // Open mailbox interface:
 
-    if ( !dmamem.create(LOGANA_PATH,1) ) {
-        ss  << strerror(errno) << ": opening mailbox "
-            << LOGANA_PATH;
+    if ( !dmamem.create(1) ) {
+        ss  << strerror(errno) << ": opening mailbox /dev/vcio";
         errmsg = ss.str();
         return false;
     }
@@ -87,10 +75,6 @@ LogicAnalyzer::open() {
 
 void
 LogicAnalyzer::close() {
-
-    if ( have_dma ) {
-        free_dma();
-    }
 
     if ( fd >= 0 ) {
         ::close(fd);
@@ -147,7 +131,6 @@ LogicAnalyzer::start(unsigned long src_addr) {
     int rc;
 
     assert(fd >= 0);                // Driver must be open
-    assert(!have_dma);
         
     rpidma.slave_id = 0;
     rpidma.page_sz = pagesize * sizeof(uint32_t);	// Bytes

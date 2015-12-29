@@ -219,7 +219,7 @@ main(int argc,char **argv) {
 		opt_blocks,
 		PAGES * 4);
 
-#ifndef LINUX4X
+#if 0
     //////////////////////////////////////////////////////////////////
     // Prepare for DMA (Linux 3.X only)
     //////////////////////////////////////////////////////////////////
@@ -345,7 +345,8 @@ main(int argc,char **argv) {
         logana.close();
         exit(13);
     }
-#else
+#endif
+
     //////////////////////////////////////////////////////////////////
     // Prepare for DMA (Linux 4.X only)
     //////////////////////////////////////////////////////////////////
@@ -370,6 +371,7 @@ main(int argc,char **argv) {
             break;
         }
 
+#if 0
         // See if we can spot the trigger, by waiting
         // to capture one block:
         do  {
@@ -391,6 +393,7 @@ main(int argc,char **argv) {
                 puts("Got trigger.");
             break;
 	}
+#endif
 
 #warning FixMe..
 #if 0
