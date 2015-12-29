@@ -5,8 +5,10 @@ LGPL2 V2.1
 
  * http://www.springer.com/us/book/9781484217382
 
-## Raspbian Linux 4.x Kernel Warning:
+This branch of the software is for the Raspbian Wheezy release of the
+Linux kernel (kernel version 3.18.x).  
 
-Something has changed in the way that the 4.1.14 Raspbian Linux kernel allocates DMA. I have resolved most of the issues related to this but kernel issues remain. If you wish to build the book's kernel module and use PiSpy, continue with the 3.x Raspbian Linux kernels for now. Check back from time to time for updates.
+If you are using the newer Jessie (4.X kernel), be sure to use the
+Jessie branch of the software instead (or checkout the LINUX4X branch
+from github).
 
-Dec 12, 2015
