@@ -1,6 +1,7 @@
 ///////////////////////////////////////////////////////////////////////
 // pispy.cpp -- Raspberry Pi Logic Anaylizer
 // Date: Tue Apr 21 21:18:24 2015  (C) Warren W. Gay VE3WWG 
+//       Mon Dec 28 19:41:03 2015  Revised for Linux 4.1 (Warren)
 //
 // Exploring the Raspberry Pi 2 with C++ (ISBN 978-1-4842-1738-2)
 // by Warren Gay VE3WWG
@@ -101,6 +102,12 @@ main(int argc,char **argv) {
     if ( argc <= 1 ) {
         usage(argv[0]);
         exit(0);
+    }
+
+    if ( gpio.get_error() != 0 ) {
+        fprintf(stderr,"%s: GPIO open (check permissions/setuid)\n",
+            strerror(errno));
+        exit(1);
     }
 
     while ( (optch = getopt(argc,argv,options)) != -1 ) {
@@ -212,8 +219,9 @@ main(int argc,char **argv) {
 		opt_blocks,
 		PAGES * 4);
 
+#ifndef LINUX4X
     //////////////////////////////////////////////////////////////////
-    // Prepare for DMA
+    // Prepare for DMA (Linux 3.X only)
     //////////////////////////////////////////////////////////////////
 
     static const uint32_t GPIO_GPLEV0 = 0x7E200034;
@@ -334,6 +342,80 @@ main(int argc,char **argv) {
                 printf("  DMA.CS.DISDEBUG :         %u\n",status.DISDEBUG);
             }
         }
+        logana.close();
+        exit(13);
+    }
+#else
+    //////////////////////////////////////////////////////////////////
+    // Prepare for DMA (Linux 4.X only)
+    //////////////////////////////////////////////////////////////////
+
+    static const uint32_t GPIO_GPLEV0 = 0x7E200034;
+    int int_count, tries = 0;
+    int safety;
+
+    while ( ++tries < opt_T ) {
+        int_count = 0;
+
+        // Start capture
+        if ( !logana.start(GPIO_GPLEV0) ) {
+            fprintf(stderr,"Unable to start DMA.\n");
+            logana.close();
+            exit(5);
+        }
+
+        if ( !trigger ) {
+            if ( opt_verbose )
+                puts("No triggers..");
+            break;
+        }
+
+        // See if we can spot the trigger, by waiting
+        // to capture one block:
+        do  {
+            int_count = logana.get_interrupts();
+            if ( !int_count )
+                usleep(10);
+        } while ( !int_count );
+            
+        size_t samps;
+        uint32_t *dblock = logana.get_samples(0,&samps);
+
+        assert(samps > 0);
+
+        if ( opt_verbose && tries == 1 )
+            puts("Sampling for trigger(s)");
+
+        if ( got_trigger(trigger_gpio,trigger,dblock,samps) ) {
+            if ( opt_verbose )
+                puts("Got trigger.");
+            break;
+	}
+
+#warning FixMe..
+#if 0
+        // Restart DMA, and try again
+        DMA::s_DMA_CS status;
+        logana.abort(&status);
+#endif
+	break;
+    }
+
+    if ( tries >= opt_T ) {
+        fprintf(stderr,"No trigger after %d tries.\n",tries);
+        logana.close();
+        exit(6);
+    }
+
+    // Wait for DMA completion
+    safety = 500000;
+
+    while ( --safety > 0 && logana.is_completed() != 1 ) {
+        usleep(10);
+    }
+    
+    if ( safety <= 0 ) {
+        fprintf(stderr,"Timed out: Waiting for DMA transfer.\n");
         logana.close();
         exit(13);
     }
