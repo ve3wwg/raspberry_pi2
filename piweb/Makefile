@@ -6,6 +6,8 @@
 
 include ../Makefile.incl
 
+.PHONY:	libevent cores clean clobber
+
 LDFLAGS	= -lrpi2 -levent -lpthread
 
 OBJS	= webmain.o worker.o piweb.o

@@ -7,6 +7,8 @@ include Makefile.incl
 PROJS	= gp pipwm piclk mtop vcd2pwl
 SETUID	= gp pispy pipwm piclk mtop
 
+.PHONY:	all checkgcc pispy pispy_clean pispy_clobber pispy_install clean clobber install uninstall
+
 all:	checkgcc
 	$(MAKE) -$(MAKEFLAGS) -C ./librpi2
 	for proj in $(PROJS) ; do \
@@ -87,9 +89,3 @@ uninstall:
 	@echo "     # sudo find /lib/modules -name rpidma.ko"
 	@echo "------------------------------------------------------------"
 	sync
-
-tar:	clobber
-	(cd .. && tar czvf raspy.tar.gz pi2)
-
-backup: tar
-	@ls -l ~/raspy.tar.gz

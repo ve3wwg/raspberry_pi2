@@ -8,6 +8,8 @@
 
 include ../Makefile.incl
 
+.PHONY:	all clean clobber
+
 all:	piclk
 	
 piclk: piclk.o $(TOPDIR)/lib/librpi2.a
