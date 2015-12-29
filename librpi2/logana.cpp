@@ -68,7 +68,7 @@ LogicAnalyzer::open() {
     }
 
     pagesize = dmamem.get_page_size();
-    sampspblk = ( ( pagesize * pagespblk ) / sizeof(uint32_t) ) - 8;
+    sampspblk = ( ( pagesize * pagespblk ) / sizeof(uint32_t) );
 
     return true;
 }
@@ -165,7 +165,7 @@ LogicAnalyzer::get_samples(unsigned blockx,size_t *n_samples) {
         return 0;                   // Bad blockx
 
     // Skip over DMA CB:
-    return ((uint32_t *)dma_blocks[blockx]->data) + 8;
+    return (uint32_t *)dma_blocks[blockx]->data;
 }
 
 // End logana.cpp
