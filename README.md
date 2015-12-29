@@ -6,7 +6,7 @@ LGPL2 V2.1
  * http://www.springer.com/us/book/9781484217382
 
 
-LINUX 4.X (default):
+LINUX 4.X Rasbian Jessie (default):
 
 This git branch is for use with Raspbian Linux using a 4.X kernel. This
 software has been tested on Raspbian Linux 4.1.14-v7+ for a Raspberry
@@ -25,7 +25,7 @@ You can check your kernel by doing:
 3. Follow the make instructions found in the book.
 
 
-LINUX 3.X:
+LINUX 3.X Raspbian Wheezy
 
 Perform a git checkout as follows:
 
