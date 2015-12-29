@@ -233,12 +233,6 @@ rpidma_ioctl(
 printk("rpidma_ioctl(cmd=%d)\n",cmd);
 
     switch ( cmd ) {
-    /*
-     * Reserve a DMA controller: arg is &struct s_rpidma_ioctl
-     */
-    case RPIDMA_REQCHAN:
-        return -EINVAL;                     /* Not for 4.X */
-
     case RPIDMA_START:
 printk("RPIDMA_START:\n");
         if ( copy_from_user(&sarg,(char *)arg,sizeof sarg) )
@@ -340,28 +334,6 @@ printk("DMA.next   %08X\n",_dma->next);
 printk("rpidma_ioctl(RPIDMA_START)..launched\n");
         return 0;
 
-    /*
-     * Return updated info: (interrupt count mainly)
-     */
-    case RPIDMA_INTINFO:
-        return -EINVAL;         /* Not used in 4.X */
-
-    /*
-     * Release reserved DMA controller (no arg)
-     */
-    case RPIDMA_RELCHAN:
-        if ( !res->dma_chan ) 
-            return -ENOENT;     /* No DMA to release */
-
-        dmaengine_terminate_all(res->dma_chan);
-        dma_release_channel(res->dma_chan);
-        if ( res->sg_list ) {
-            kfree(res->sg_list);
-            res->sg_list = 0;
-        }
-
-        return 0;
-    
     case RPIDMA_STATUS:
         if ( !res->dma_chan )
             return -ENOENT;
