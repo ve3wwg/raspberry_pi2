@@ -52,6 +52,8 @@ clobber:
 		$(MAKE) -C ./$$proj clobber ; \
 	done
 	$(MAKE) -C ./kmodules clobber
+	$(MAKE) -C ./piweb clobber
+	$(MAKE) -C ./pispy clobber
 
 install: all
 	@if [ $$(id -u) -ne 0 ] ; then echo ">>> USE sudo make install TO INSTALL <<<" ; exit 1; fi
