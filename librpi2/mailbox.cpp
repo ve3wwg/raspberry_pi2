@@ -52,7 +52,7 @@ Mailbox::~Mailbox() {
 }
 
 bool
-Mailbox::create(const char *pathname,uint32_t pages) {
+Mailbox::create(uint32_t pages) {
 
     {
         std::string model, serial;
@@ -70,21 +70,17 @@ Mailbox::create(const char *pathname,uint32_t pages) {
         }
     }
 
-    path = pathname;
+    path = "/dev/vcio";     // This changed in Linux 4.x
     this->pages = pages;
 
-    unlink(pathname);
-    if ( mknod(pathname,S_IFCHR|0600,makedev(100,0))== -1 )
+    fd = ::open(path,O_RDWR);
+    if ( fd == -1 ) {
+	fd = ::open(path,O_RDWR);
+    }
+
+    if ( fd == -1 ) {
         return false;
-
-    createf = true;
-
-    if ( fd >= 0 )
-        close();
-
-    fd = ::open(pathname,O_RDWR);
-    if ( fd == -1 )
-        return false;
+    }
 
     mem_ref = alloc(pages*page_size,page_size,mem_flag);
     if ( mem_ref == ~0u ) {
@@ -140,8 +136,8 @@ Mailbox::close() {
     if ( fd >= 0 ) {
         rc = ::close(fd);
         fd = -1;
-        if ( createf )
-            unlink(path.c_str());
+        if ( createf && strcmp(path.c_str(),"/dev/vcio") != 0 )
+            unlink(path.c_str());   // Don't delete /dev/vcio !!
     }
 
     return !rc;
