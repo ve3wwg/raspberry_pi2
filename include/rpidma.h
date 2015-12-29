@@ -28,6 +28,7 @@ struct s_rpidma_ioctl {
  */
 #define RPIDMA_START    200 /* Allocate and start DMA */
 #define RPIDMA_STATUS   201 /* Query completion status */
+#define RPIDMA_CANCEL   202 /* Cancel DMA operation, if any */
 
 #endif
 
