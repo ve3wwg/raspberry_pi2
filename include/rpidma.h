@@ -10,33 +10,24 @@
 #ifndef _RPIDMA_H
 #define _RPIDMA_H 1
 
-#define RPIDMA_DEVICE_PATH "/dev/rpidma"
+#define RPIDMA_DEVICE_PATH "/dev/rpidma4x"
 
-/*
- * DMA Feature Types
- */
-#define RPIDMA_FEAT_FAST	1
-#define RPIDMA_FEAT_BULK	2
-#define RPIDMA_FEAT_NORM	4
-#define RPIDMA_FEAT_LITE	8
+/* Linux 4.X version */
 
-/*
- * ioctl(2) Argument for /dev/rpidma:
- */
 struct s_rpidma_ioctl {
-    int         features;   /* Requested features */
-    int         dma_chan;   /* Assigned DMA Channel */
-    unsigned    dma_base;   /* Peripheral base addr */
-    int         dma_irq;    /* IRQ # assigned */
-    unsigned    interrupts; /* # of interrupts */
+    uint32_t    slave_id;   /* Slave ID to assign */
+    uint32_t    page_sz;    /* Size of each page */
+    uint32_t    src_addr;   /* One source address */
+    uint32_t    n_dst;      /* # of destination addresses */
+    uint32_t    *pdst_addr; /* Ptr to first designation address */
+
 };
 
 /*
  * ioctl(2) Commands
  */
-#define RPIDMA_REQCHAN  100 /* Request (reserve) a DMA chan */
-#define RPIDMA_RELCHAN  101 /* Release a reserved DMA chan */
-#define RPIDMA_INTINFO	102 /* Request snapshot of interrupts */
+#define RPIDMA_START    200 /* Allocate and start DMA */
+#define RPIDMA_STATUS   201 /* Query completion status */
 
 #endif
 
