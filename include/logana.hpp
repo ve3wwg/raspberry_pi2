@@ -40,12 +40,6 @@ class LogicAnalyzer {
     DMA                 dma;        // DMA registers + CB
     GPIO                gpio;       // GPIO access
 
-    bool                rpidma4x;   // Using Linux kernel 4.x+ module
-
-protected:
-    bool alloc_dma();
-    bool free_dma();
-
 public:
     LogicAnalyzer(unsigned arg_ppblk=8);
     ~LogicAnalyzer();
