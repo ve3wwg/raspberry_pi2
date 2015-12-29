@@ -8,6 +8,8 @@
 
 include ../Makefile.incl
 
+.PHONY:	all clean clobber
+
 all:	pipwm
 	
 pipwm: pipwm.o $(TOPDIR)/librpi2/librpi2.a

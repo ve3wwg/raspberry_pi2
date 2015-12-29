@@ -8,6 +8,8 @@
 
 include ../Makefile.incl
 
+.PHONY:	all clean clobber
+
 all:	gp
 	
 gp: gp.o $(TOPDIR)/librpi2/librpi2.a

@@ -8,6 +8,8 @@
 
 include ../Makefile.incl
 
+.PHONY:	all clean clobber
+
 all:	mtop burn
 	
 mtop:	mtopmain.o 

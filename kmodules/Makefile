@@ -4,6 +4,8 @@
 
 include ../Makefile.incl
 
+.PHONY: all install clean clobber
+
 all:
 	@if [ ! -d "$(LINUX)" ] ; then \
 		echo "Variable LINUX=$(LINUX), where there is" ; \
@@ -42,11 +44,6 @@ install:
 	fi
 
 clean:
-	$(MAKE) -$(MAKEFLAGS) -C ./test clean
 
 clobber:
 	$(MAKE) -$(MAKEFLAGS) -C ./rpidma -f Makefile.aux clobber
-	$(MAKE) -$(MAKEFLAGS) -C ./hello -f Makefile.aux clobber
-	$(MAKE) -$(MAKEFLAGS) -C ./test clobber
-
-

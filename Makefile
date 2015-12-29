@@ -4,6 +4,8 @@
 
 include Makefile.incl
 
+.PHONY:	all checkgcc pispy pispy_clean pispy_clobber pispy_install clean clobber install uninstall
+
 PROJS	= gp pipwm piclk mtop vcd2pwl
 SETUID	= gp pispy pipwm piclk mtop
 
@@ -86,8 +88,3 @@ uninstall:
 	@echo "------------------------------------------------------------"
 	sync
 
-tar:	clobber
-	(cd .. && tar czvf raspy.tar.gz pi2)
-
-backup: tar
-	@ls -l ~/raspy.tar.gz
