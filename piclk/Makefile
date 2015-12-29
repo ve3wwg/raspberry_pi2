@@ -10,7 +10,7 @@ include ../Makefile.incl
 
 all:	piclk
 	
-piclk: piclk.o $(TOPDIR)/librpi2/librpi2.a
+piclk: piclk.o $(TOPDIR)/lib/librpi2.a
 	$(CXX) piclk.o -o piclk $(LDFLAGS)
 	sudo chown root piclk
 	sudo chmod u+s piclk
