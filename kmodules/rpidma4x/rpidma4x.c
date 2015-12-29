@@ -1,4 +1,4 @@
-/* Kernel Module rpidma4x.c
+/* Kernel Module rpidma4x.c for Linux 4.X
  * Sun Dec 13 13:26:26 2015
  * Warren W. Gay VE3WWG
  *
@@ -29,73 +29,15 @@
 #include <linux/dmaengine.h>
 #include <linux/dma-mapping.h>
 
-#define LINUX4X
 #include "rpidma.h"
 
 #define DEVICE_NAME "rpidma4x"
-
-#if 1
-#include <linux/of.h>
-#include <linux/of_dma.h>
-
-struct virt_dma_desc {
-	struct dma_async_tx_descriptor tx;
-	/* protected by vc.lock */
-	struct list_head node;
-};
-
-struct virt_dma_chan {
-	struct dma_chan chan;
-	struct tasklet_struct task;
-	void (*desc_free)(struct virt_dma_desc *);
-	
-	spinlock_t lock;
-	
-	/* protected by vc.lock */
-	struct list_head desc_submitted;
-	struct list_head desc_issued;
-	struct list_head desc_completed;
-	
-	struct virt_dma_desc *cyclic;
-};
-
-struct bcm2835_dmadev {
-	struct dma_device ddev;
-	spinlock_t lock;
-	void __iomem *base;
-	struct device_dma_parameters dma_parms;
-};
-
-struct bcm2835_dma_cb {
-	uint32_t info;
-	uint32_t src;
-	uint32_t dst;
-	uint32_t length;
-	uint32_t stride;
-	uint32_t next;
-	uint32_t pad[2];
-};
-
-struct bcm2835_desc {
-	struct virt_dma_desc vd;
-	enum dma_transfer_direction dir;
-	
-	unsigned int control_block_size;
-	struct bcm2835_dma_cb *control_block_base;
-	dma_addr_t control_block_base_phys;
-	
-	unsigned int frames;
-	size_t size;
-};
-
-#endif
 
 struct s_dmares {
     struct dma_chan *dma_chan;      /* Allocated DMA channel */
     struct dma_slave_config config; /* DMA config */
     struct scatterlist  *sg_list;   /* Scatter/Gather list */
     unsigned            n_sg;       /* # items in sg_list */
-    unsigned            a_sg;       /* Actual # */
     struct dma_async_tx_descriptor *tx_desc; /* DMA tx descriptor */
     dma_cookie_t        cookie;     /* Cookie for submission */
 };
@@ -178,7 +120,6 @@ rpidma_open(struct inode *inode,struct file *file) {
     res->dma_chan = 0;
     res->sg_list = 0;
     res->n_sg = 0;
-    res->a_sg = 0;
     res->tx_desc = 0;
     res->cookie = 0;
 
@@ -203,7 +144,7 @@ rpidma_release(struct inode *inode,struct file *file) {
         if ( res->sg_list ) {
             kfree(res->sg_list);
             res->sg_list = 0;
-            res->a_sg = res->n_sg = 0;
+            res->n_sg = 0;
         }
         kfree(res);
     }
@@ -227,21 +168,12 @@ rpidma_ioctl(
     uint32_t *usr_ptr = 0;
     int rc, x;
 
-	struct bcm2835_desc *_desc = 0;
-	struct bcm2835_dma_cb *_dma;
-
-printk("rpidma_ioctl(cmd=%d)\n",cmd);
-
     switch ( cmd ) {
     case RPIDMA_START:
-printk("RPIDMA_START:\n");
         if ( copy_from_user(&sarg,(char *)arg,sizeof sarg) )
             return -EFAULT;
 
-printk("RPIDMA_START: copy_from_user(1) ok\n");
-
         if ( res->dma_chan ) {
-printk("RPIDMA_START: releasing old channel..\n");
             /* Release existing channel */
             dmaengine_terminate_all(res->dma_chan);
             dma_release_channel(res->dma_chan);
@@ -264,13 +196,9 @@ printk("RPIDMA_START: releasing old channel..\n");
         if ( !res->dma_chan )
             return -EBUSY;
 
-printk("rpidma_ioctl(RPIDMA_START)..dma_chan = %p, src_addr = %08X\n",res->dma_chan,(unsigned)res->config.src_addr);
-
         rc = dmaengine_slave_config(res->dma_chan,&res->config);
         if ( rc < 0 )
             return -rc;
-
-printk("rpidma_ioctl(RPIDMA_START)..config ok..\n");
 
         /* Access list of user mode buffers */
         usr_ptr = kmalloc(sarg.n_dst * sizeof(uint32_t),GFP_KERNEL);
@@ -290,48 +218,15 @@ printk("rpidma_ioctl(RPIDMA_START)..config ok..\n");
             // Cheat since we can't provide a proper input mapping
             sg_dma_address(sgent) = usr_ptr[x];
             sg_dma_len(sgent) = sarg.page_sz;
-
-//            sg_set_buf(sgent,(void *)usr_ptr[x],sarg.page_sz);
-printk("usr_ptr[%d] = %08X\n",x,(unsigned)usr_ptr[x]);
         }
-
-printk("rpidma_ioctl(RPIDMA_START)..sg_table ok..\n");
 
         kfree(usr_ptr);
         usr_ptr = 0;
 
-printk("rpidma_ioctl(RPIDMA_START)..usr_ptr freed..\n");
-
-#if 0
-        res->a_sg = dma_map_sg(res->dma_chan->device->dev,res->sg_list,res->n_sg,DMA_DEV_TO_MEM);
-        if ( !res->a_sg ) {
-printk("rpidma_ioctl(RPIDMA_START)..dma_map_sg(FAILED)\n");
-            kfree(res->sg_list);
-            res->sg_list = 0;
-            return -EINVAL;
-        }
-
-printk("rpidma_ioctl(RPIDMA_START)..mapped\n");
-#endif
-	res->a_sg = res->n_sg;
-
-        res->tx_desc = dmaengine_prep_slave_sg(res->dma_chan,res->sg_list,res->a_sg,DMA_DEV_TO_MEM,0);
-printk("rpidma_ioctl(RPIDMA_START)..prepped\n");
+        res->tx_desc = dmaengine_prep_slave_sg(res->dma_chan,res->sg_list,res->n_sg,DMA_DEV_TO_MEM,0);
         res->cookie = dmaengine_submit(res->tx_desc);
-printk("rpidma_ioctl(RPIDMA_START)..submitted\n");
-
-	_desc = container_of(res->tx_desc,struct bcm2835_desc,vd.tx);
-	_dma = _desc->control_block_base;
-
-printk("DMA.info   %08X\n",_dma->info);
-printk("DMA.src    %08X\n",_dma->src);
-printk("DMA.dst    %08X\n",_dma->dst);
-printk("DMA.length %08X\n",_dma->length);
-printk("DMA.stride %08X\n",_dma->stride);
-printk("DMA.next   %08X\n",_dma->next);
 
         dma_async_issue_pending(res->dma_chan);
-printk("rpidma_ioctl(RPIDMA_START)..launched\n");
         return 0;
 
     case RPIDMA_STATUS:
@@ -345,6 +240,15 @@ printk("rpidma_ioctl(RPIDMA_START)..launched\n");
         if ( dma_status == DMA_COMPLETE )
             return 1;                   /* DMA has completed */
         return 0;                       /* DMA has not started / in progress */
+
+    case RPIDMA_CANCEL:
+        if ( res->dma_chan ) {
+            /* Release existing channel */
+            dmaengine_terminate_all(res->dma_chan);
+            dma_release_channel(res->dma_chan);
+            res->dma_chan = 0;
+        }
+        return 0;
 
     default :
         ;
