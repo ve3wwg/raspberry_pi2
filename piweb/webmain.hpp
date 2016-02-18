@@ -11,7 +11,7 @@
 #define WEBMAIN_HPP
 
 #include "worker.hpp"
-
+#include <string>
 #include <vector>
 
 class WebMain {
