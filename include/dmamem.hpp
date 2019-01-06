@@ -32,10 +32,12 @@
 //////////////////////////////////////////////////////////////////////
 
 class DmaMem : public Mailbox {
+public:
     typedef uint32_t    memh_t;     // Memory handle
     typedef uint32_t    bush_t;     // Memory Bus handle
     typedef uint8_t     virtm_t;    // Virtual Pointer
 
+private:
     struct s_alloc {
         size_t      pages;          // Allocated size
         memh_t      mem_h;          // Memory handle
@@ -51,6 +53,8 @@ public:	DmaMem();
 
     void *allocate(size_t pages,uint32_t mflags=~0u);
     bool free(const void *addr);
+
+    bush_t bus_handle(void *virtm);
 
     off_t phys_addr(const void *addr);
     inline uint32_t get_page_size() { return page_size; }

@@ -8,6 +8,8 @@
 
 include ../Makefile.incl
 
+.PHONY:	all clean clobber
+
 all:	pispy
 	
 pispy: pispy.o $(TOPDIR)/lib/librpi2.a
@@ -19,6 +21,6 @@ clean:
 	rm -f *.o core.*
 
 clobber: clean
-	rm -f pispy .errs.t
+	rm -f pispy .errs.t .gtkwave.out captured.vcd
 
 # End Makefile

@@ -18,7 +18,6 @@
 class Mailbox	{
     std::string path;           // Pathname of the device
     uint32_t    pages;          // Mailbox size in pages
-    bool        createf;        // True if mailbox created
 
 protected:
 
@@ -39,7 +38,7 @@ public:
     inline uint32_t get_page_size() { return page_size; }
     inline uint32_t get_mem_flag() { return mem_flag; }
 
-    bool create(const char *path,uint32_t pages);
+    bool create(uint32_t pages);
     bool close();
 
     bool property(void *buf);

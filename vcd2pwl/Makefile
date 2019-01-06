@@ -8,6 +8,8 @@
 
 include ../Makefile.incl
 
+.PHONY:	all clean clobber
+
 all:	vcd2pwl
 	
 vcd2pwl: vcd2pwl.o $(TOPDIR)/lib/librpi2.a

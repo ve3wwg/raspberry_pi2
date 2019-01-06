@@ -5,8 +5,31 @@ LGPL2 V2.1
 
  * http://www.springer.com/us/book/9781484217382
 
-## Raspbian Linux 4.x Kernel Warning:
 
-Something has changed in the way that the 4.1.14 Raspbian Linux kernel allocates DMA. I have resolved most of the issues related to this but kernel issues remain. If you wish to build the book's kernel module and use PiSpy, continue with the 3.x Raspbian Linux kernels for now. Check back from time to time for updates.
+LINUX 4.X Rasbian Jessie (default):
 
-Dec 12, 2015
+This git branch is for use with Raspbian Linux using a 4.X kernel. This
+software has been tested on Raspbian Linux 4.1.14-v7+ for a Raspberry
+Pi 2 SoC.
+
+You can check your kernel by doing:
+
+    $ uname -r
+    4.1.14-v7+
+
+1. git clone git@github.com:ve3wwg/raspberry_pi2.git
+
+2. (optionally, since LINUX4X should be the default):
+   git checkout LINUX4X
+
+3. Follow the make instructions found in the book.
+
+
+LINUX 3.X Raspbian Wheezy
+
+Perform a git checkout as follows:
+
+1. git clone git@github.com:ve3wwg/raspberry_pi2.git
+2. git checkout LINUX3X
+3. Follow the make instructions found in the book.
+

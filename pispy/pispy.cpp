@@ -1,6 +1,7 @@
 ///////////////////////////////////////////////////////////////////////
 // pispy.cpp -- Raspberry Pi Logic Anaylizer
 // Date: Tue Apr 21 21:18:24 2015  (C) Warren W. Gay VE3WWG 
+//       Mon Dec 28 19:41:03 2015  Revised for Linux 4.1 (Warren)
 //
 // Exploring the Raspberry Pi 2 with C++ (ISBN 978-1-4842-1738-2)
 // by Warren Gay VE3WWG
@@ -101,6 +102,12 @@ main(int argc,char **argv) {
     if ( argc <= 1 ) {
         usage(argv[0]);
         exit(0);
+    }
+
+    if ( gpio.get_error() != 0 ) {
+        fprintf(stderr,"%s: GPIO open (check permissions/setuid)\n",
+            strerror(errno));
+        exit(1);
     }
 
     while ( (optch = getopt(argc,argv,options)) != -1 ) {
@@ -213,46 +220,15 @@ main(int argc,char **argv) {
 		PAGES * 4);
 
     //////////////////////////////////////////////////////////////////
-    // Prepare for DMA
+    // Prepare for DMA (Linux 4.X only)
     //////////////////////////////////////////////////////////////////
 
     static const uint32_t GPIO_GPLEV0 = 0x7E200034;
-    int int_count, tries = 0;
-    int safety;
+    int tries = 0, safety;
 
     while ( ++tries < opt_T ) {
-        int_count = 0;
-
-        {   // Ready the DMA control block
-            DMA::CB& dma_cb = logana.get_cb();
-
-            // Set up control block:
-            dma_cb.clear();
-
-            dma_cb.TI.NO_WIDE_BURSTS = 1;
-            dma_cb.TI.WAITS = 0;
-            dma_cb.TI.SRC_WIDTH = 0;            // 32-bits
-            dma_cb.TI.SRC_INC = 0;
-            dma_cb.TI.DEST_WIDTH = 0;           // 32-bits
-            dma_cb.TI.DEST_INC = 1;
-            dma_cb.TI.WAIT_RESP = 1;
-
-            // Configure the transfer:
-            dma_cb.TI.SRC_DREQ = 0;
-            dma_cb.TI.DEST_DREQ = 0;       	        // See PERMAP 
-            // dma_cb.TI.PERMAP = DMA::DREQ_2;
-            dma_cb.SOURCE_AD = GPIO_GPLEV0;
-
-            logana.propagate();
-
-            if ( tries == 1 && opt_verbose ) {
-                printf("GPLEV0 = 0x%08X\n",unsigned(dma_cb.SOURCE_AD));
-                logana.dump_cb();
-            }
-        }
-
         // Start capture
-        if ( !logana.start() ) {
+        if ( !logana.start(GPIO_GPLEV0) ) {
             fprintf(stderr,"Unable to start DMA.\n");
             logana.close();
             exit(5);
@@ -266,11 +242,8 @@ main(int argc,char **argv) {
 
         // See if we can spot the trigger, by waiting
         // to capture one block:
-        do  {
-            int_count = logana.get_interrupts();
-            if ( !int_count )
-                usleep(10);
-        } while ( !int_count );
+	while ( !logana.read_1stblock() )
+        	usleep(10);
             
         size_t samps;
         uint32_t *dblock = logana.get_samples(0,&samps);
@@ -286,9 +259,8 @@ main(int argc,char **argv) {
             break;
 	}
 
-        // Restart DMA, and try again
-        DMA::s_DMA_CS status;
-        logana.abort(&status);
+	// Abort and retry with next loop..
+	logana.cancel();
     }
 
     if ( tries >= opt_T ) {
@@ -300,40 +272,12 @@ main(int argc,char **argv) {
     // Wait for DMA completion
     safety = 500000;
 
-    while ( --safety > 0 && !logana.end() ) {
+    while ( --safety > 0 && logana.is_completed() != 1 ) {
         usleep(10);
-        int_count = logana.get_interrupts();
     }
-
-    if ( opt_verbose ) {
-        int_count = logana.get_interrupts();
-
-        printf("Interrupts: %u (%u blocks)\n",
-            int_count,
-            unsigned(logana.get_blocks()));
-    }
-
+    
     if ( safety <= 0 ) {
-        printf("Timed out: aborted.\n");
-
-        if ( opt_verbose ) {
-            DMA::s_DMA_CS status;
-            if ( logana.abort(&status) ) {
-                printf("Terminated DMA status:\n");
-                printf("  DMA.CS.ACTIVE :           %u\n",status.ACTIVE);
-                printf("  DMA.CS.END :              %u\n",status.END);
-                printf("  DMA.CS.INT :              %u\n",status.INT);
-                printf("  DMA.CS.DREQ :             %u\n",status.DREQ);
-                printf("  DMA.CS.PAUSED :           %u\n",status.PAUSED);
-                printf("  DMA.CS.DREQ_STOPS_DMA :   %u\n",status.DREQ_STOPS_DMA);
-                printf("  DMA.CS.WAITING :          %u\n",status.WAITING);
-                printf("  DMA.CS.ERROR :            %u\n",status.ERROR);
-                printf("  DMA.CS.PRIORITY :         %u\n",status.PRIORITY);
-                printf("  DMA.CS.PANICPRI :         %u\n",status.PANICPRI);
-                printf("  DMA.CS.WAIT_WRITES :      %u\n",status.WAIT_WRITES);
-                printf("  DMA.CS.DISDEBUG :         %u\n",status.DISDEBUG);
-            }
-        }
+        fprintf(stderr,"Timed out: Waiting for DMA transfer.\n");
         logana.close();
         exit(13);
     }

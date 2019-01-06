@@ -8,9 +8,11 @@
 
 include ../Makefile.incl
 
+.PHONY:	all clean clobber
+
 all:	pipwm
 	
-pipwm: pipwm.o $(TOPDIR)/librpi2/librpi2.a
+pipwm: pipwm.o $(TOPDIR)/lib/librpi2.a
 	$(CXX) pipwm.o -o pipwm $(LDFLAGS)
 	sudo chown root pipwm
 	sudo chmod u+s pipwm
